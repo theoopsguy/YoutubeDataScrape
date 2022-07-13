@@ -9,7 +9,6 @@ youtube = googleapiclient.discovery.build(
         api_service_name, api_version, developerKey = DEVELOPER_KEY)
 
 # Fetching comment threads of all videos
-
 def getComments(video):
     commentInfoReq = youtube.commentThreads().list(
         part="snippet,replies",
@@ -20,7 +19,6 @@ def getComments(video):
     commentInfoRes = commentInfoReq.execute()
     
     # For comments spread across multiple pages
-
     nextPageToken = commentInfoRes.get('nextPageToken')
     morePagesExist = True
 
