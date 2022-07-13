@@ -11,48 +11,42 @@ youtube = googleapiclient.discovery.build(
         api_service_name, api_version, developerKey = DEVELOPER_KEY)
 
 # Fetching channel details
-
-channelInfoReq = youtube.channels().list(
+def getYTinfo():
+    channelInfoReq = youtube.channels().list(
         part="contentDetails",
         id=channelId.channelId
     )
-channelInfoRes = channelInfoReq.execute()
+    channelInfoRes = channelInfoReq.execute()
 
-# Fetching uploaded video details which will be present in uploads playlist
+    # Fetching uploaded video details which will be present in uploads playlist
 
-uploadsPlaylistId = channelInfoRes['items'][0]['contentDetails']['relatedPlaylists']['uploads']
+    uploadsPlaylistId = channelInfoRes['items'][0]['contentDetails']['relatedPlaylists']['uploads']
 
-playlistInfoReq = youtube.playlistItems().list(
+    playlistInfoReq = youtube.playlistItems().list(
         part="contentDetails",
         maxResults=10,
         playlistId=uploadsPlaylistId
     )
-playlistInfoRes = playlistInfoReq.execute()
+    playlistInfoRes = playlistInfoReq.execute()
 
-videoIdList = []
+    videoIdList = []
 
-for idx in range(len(playlistInfoRes['items'])):
-    videoIdList.append(playlistInfoRes['items'][idx]['contentDetails']['videoId'])
+    for idx in range(len(playlistInfoRes['items'])):
+        videoIdList.append(playlistInfoRes['items'][idx]['contentDetails']['videoId'])
 
-# Fetching details of all videoIds in the videoIdList
+    # Fetching details of all videoIds in the videoIdList
 
-videoDetails = []
-
-videoInfoReq = youtube.videos().list(
+    videoInfoReq = youtube.videos().list(
         part="snippet,contentDetails,statistics",
         id=','.join(videoIdList[0:10])
     )
-videoInfoRes = videoInfoReq.execute()
+    videoInfoRes = videoInfoReq.execute()
 
-for idx in range(len(videoInfoRes['items'])):
-    videoData = dict(titleName = videoInfoRes['items'][idx]['snippet']['title'],
-                    datePublished = videoInfoRes['items'][idx]['snippet']['publishedAt'],
-                    duration = videoInfoRes['items'][idx]['contentDetails']['duration'],
-                    viewsCount = videoInfoRes['items'][idx]['statistics']['viewCount'],
-                    likesCount = videoInfoRes['items'][idx]['statistics']['likeCount'], 
-                    commentsCount = videoInfoRes['items'][idx]['statistics']['commentCount'],
-                    comments = comments.getComments(videoInfoRes['items'][idx]['id']))
+    #Prints json containing info about n videos
+    print(videoInfoRes)
 
-    videoDetails.append(videoData)
+    #Prints n jsons containing info about all the comments received on those n videos
+    for idx in range(len(videoIdList)):
+        print(comments.getComments(videoIdList[idx]))
 
-print(videoDetails)
+getYTinfo()
